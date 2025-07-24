@@ -1,0 +1,11 @@
+@import 'tailwindcss';
+
+
+.frm {
+  background-color: skyblue;
+  height: 100px;
+}
+
+html,body{
+  background-color: rgb(238, 237, 237);
+}
