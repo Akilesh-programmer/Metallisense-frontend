@@ -3,7 +3,6 @@ import axios from "../utils/axios";
 import toast from "react-hot-toast";
 import socketService from "../utils/socket";
 import dashboardAPI from "../services/dashboardAPI";
-import debugUtils from "../utils/debug";
 
 function MainDashboard() {
   // State management
@@ -206,15 +205,6 @@ function MainDashboard() {
     }
   };
 
-  // Debug function to help troubleshoot issues
-  const runDiagnostics = async () => {
-    console.log('🔧 Running diagnostics...');
-    debugUtils.logEnvironment();
-    await debugUtils.checkBackendHealth();
-    await debugUtils.testEndpoints();
-    toast.info('Check console for diagnostic results');
-  };
-
   // Helper function for connection status styling
   const getConnectionStatusClass = () => {
     if (isSpectrometerConnected) return 'bg-green-100 text-green-800';
@@ -260,12 +250,6 @@ function MainDashboard() {
             <p className="text-gray-600">AI-Driven Alloy Addition System</p>
           </div>
           <div className="flex gap-3">
-            <button
-              onClick={runDiagnostics}
-              className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors shadow-md"
-            >
-              Debug
-            </button>
             <button
               onClick={handleLogout}
               className="px-6 py-2.5 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors shadow-md hover:shadow-lg"
