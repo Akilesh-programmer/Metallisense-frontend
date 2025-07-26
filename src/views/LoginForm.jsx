@@ -32,8 +32,8 @@ function LoginForm() {
           id: loadingToast,
         });
 
-        // Redirect to dashboard on successful login
-        navigate("/dashboard");
+        // Redirect to main page on successful login
+        navigate("/main");
       }
     } catch (err) {
       console.error("Login failed:", err);

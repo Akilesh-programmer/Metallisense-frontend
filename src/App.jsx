@@ -2,7 +2,6 @@ import React from "react";
 import "./App.css";
 import LoginForm from "./views/LoginForm";
 import RegisterForm from "./views/RegisterForm";
-import MainDashboard from "./views/MainDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
@@ -16,18 +15,27 @@ function App() {
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
 
-          {/* Protected Routes */}
+          {/* Protected Routes - Add your main component here */}
           <Route
-            path="/dashboard"
+            path="/main"
             element={
               <ProtectedRoute>
-                <MainDashboard />
+                <div className="min-h-screen flex items-center justify-center">
+                  <div className="text-center">
+                    <h1 className="text-2xl font-bold text-gray-800 mb-4">
+                      Welcome to MetalliSense
+                    </h1>
+                    <p className="text-gray-600">
+                      Main application will be loaded here
+                    </p>
+                  </div>
+                </div>
               </ProtectedRoute>
             }
           />
 
-          {/* Default redirect */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          {/* Default redirect to login */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
 
           {/* Catch all other routes */}
           <Route path="*" element={<Navigate to="/login" replace />} />
