@@ -1,33 +1,23 @@
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import { useOPCStatus } from "../../hooks/useOPCStatus";
 import axios from "../../utils/axios";
 import toast from "react-hot-toast";
 
-function ReadingConfigurationPanel({ onReadingGenerated }) {
+function ReadingConfigurationPanel({ onReadingGenerated, onGenerationStart, onGenerationError, isGenerating }) {
+  // Use centralized OPC status context
+  const { isClientConnected } = useOPCStatus();
+  
   const [metalGrades, setMetalGrades] = useState([]);
   const [selectedGrade, setSelectedGrade] = useState("");
   const [selectedGradeDetails, setSelectedGradeDetails] = useState(null);
   const [deviationElements, setDeviationElements] = useState([]);
   const [deviationPercentage, setDeviationPercentage] = useState(10);
-  const [isGeneratingReading, setIsGeneratingReading] = useState(false);
-  const [opcStatus, setOpcStatus] = useState(null);
 
   // Load initial data
   useEffect(() => {
     fetchMetalGrades();
-    checkOPCStatus();
   }, []);
-
-  // Check OPC status for connection validation
-  const checkOPCStatus = async () => {
-    try {
-      const response = await axios.get("/spectrometer/opc-status");
-      if (response.data.status === "success") {
-        setOpcStatus(response.data.data.opcStatus);
-      }
-    } catch (error) {
-      console.error("Failed to fetch OPC status:", error);
-    }
-  };
 
   // Fetch available metal grades
   const fetchMetalGrades = async () => {
@@ -96,14 +86,18 @@ function ReadingConfigurationPanel({ onReadingGenerated }) {
     }
 
     // Check OPC connection status
-    if (!opcStatus?.client?.isConnected) {
+    if (!isClientConnected) {
       toast.error(
         "Please connect to OPC Server first before generating readings"
       );
       return;
     }
 
-    setIsGeneratingReading(true);
+    // Notify parent component that generation has started
+    if (onGenerationStart) {
+      onGenerationStart();
+    }
+    
     try {
       const requestBody = {
         metalGrade: selectedGrade,
@@ -133,8 +127,11 @@ function ReadingConfigurationPanel({ onReadingGenerated }) {
       const errorMessage =
         error.response?.data?.error?.message || "Failed to generate reading";
       toast.error(errorMessage);
-    } finally {
-      setIsGeneratingReading(false);
+      
+      // Notify parent component of error
+      if (onGenerationError) {
+        onGenerationError();
+      }
     }
   };
 
@@ -180,7 +177,8 @@ function ReadingConfigurationPanel({ onReadingGenerated }) {
     }
   };
 
-  const isConnected = opcStatus?.client?.isConnected;
+  // Use centralized context for connection status
+  const isConnected = isClientConnected;
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-4 lg:p-6 h-full flex flex-col w-full">
@@ -289,14 +287,14 @@ function ReadingConfigurationPanel({ onReadingGenerated }) {
       <div className="mt-6">
         <button
           onClick={generateReading}
-          disabled={!selectedGrade || isGeneratingReading || !isConnected}
+          disabled={!selectedGrade || isGenerating || !isConnected}
           className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors ${
             !selectedGrade || !isConnected
               ? "bg-gray-300 text-gray-500 cursor-not-allowed"
               : "bg-green-500 hover:bg-green-600 text-white"
-          } ${isGeneratingReading ? "opacity-50 cursor-not-allowed" : ""}`}
+          } ${isGenerating ? "opacity-50 cursor-not-allowed" : ""}`}
         >
-          {isGeneratingReading ? (
+          {isGenerating ? (
             <div className="flex items-center justify-center">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
               Generating Reading...
@@ -321,5 +319,13 @@ function ReadingConfigurationPanel({ onReadingGenerated }) {
     </div>
   );
 }
+
+// PropTypes validation
+ReadingConfigurationPanel.propTypes = {
+  onReadingGenerated: PropTypes.func.isRequired,
+  onGenerationStart: PropTypes.func,
+  onGenerationError: PropTypes.func,
+  isGenerating: PropTypes.bool
+};
 
 export default ReadingConfigurationPanel;

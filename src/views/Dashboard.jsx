@@ -91,7 +91,6 @@ function Dashboard() {
             {/* Reading Configuration Panel */}
             <div className="w-full">
               <ReadingConfigurationPanel
-                opcStatus={opcStatus}
                 onReadingGenerated={handleReadingGenerated}
                 onGenerationStart={handleGenerationStart}
                 onGenerationError={handleGenerationError}
