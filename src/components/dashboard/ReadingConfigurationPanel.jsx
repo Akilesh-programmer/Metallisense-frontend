@@ -4,10 +4,15 @@ import { useOPCStatus } from "../../hooks/useOPCStatus";
 import axios from "../../utils/axios";
 import toast from "react-hot-toast";
 
-function ReadingConfigurationPanel({ onReadingGenerated, onGenerationStart, onGenerationError, isGenerating }) {
+function ReadingConfigurationPanel({
+  onReadingGenerated,
+  onGenerationStart,
+  onGenerationError,
+  isGenerating,
+}) {
   // Use centralized OPC status context
   const { isClientConnected } = useOPCStatus();
-  
+
   const [metalGrades, setMetalGrades] = useState([]);
   const [selectedGrade, setSelectedGrade] = useState("");
   const [selectedGradeDetails, setSelectedGradeDetails] = useState(null);
@@ -97,7 +102,7 @@ function ReadingConfigurationPanel({ onReadingGenerated, onGenerationStart, onGe
     if (onGenerationStart) {
       onGenerationStart();
     }
-    
+
     try {
       const requestBody = {
         metalGrade: selectedGrade,
@@ -127,7 +132,7 @@ function ReadingConfigurationPanel({ onReadingGenerated, onGenerationStart, onGe
       const errorMessage =
         error.response?.data?.error?.message || "Failed to generate reading";
       toast.error(errorMessage);
-      
+
       // Notify parent component of error
       if (onGenerationError) {
         onGenerationError();
@@ -325,7 +330,7 @@ ReadingConfigurationPanel.propTypes = {
   onReadingGenerated: PropTypes.func.isRequired,
   onGenerationStart: PropTypes.func,
   onGenerationError: PropTypes.func,
-  isGenerating: PropTypes.bool
+  isGenerating: PropTypes.bool,
 };
 
 export default ReadingConfigurationPanel;
