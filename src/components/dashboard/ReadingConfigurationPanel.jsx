@@ -3,12 +3,14 @@ import PropTypes from "prop-types";
 import { useOPCStatus } from "../../hooks/useOPCStatus";
 import axios from "../../utils/axios";
 import toast from "react-hot-toast";
+import { formatRange } from "../../utils/formatters";
 
 function ReadingConfigurationPanel({
   onReadingGenerated,
   onGenerationStart,
   onGenerationError,
   isGenerating,
+  onGradeDetailsChange,
 }) {
   // Use centralized OPC status context
   const { isClientConnected } = useOPCStatus();
@@ -44,13 +46,16 @@ function ReadingConfigurationPanel({
         name: gradeName,
       });
       if (response.data.status === "success") {
-        setSelectedGradeDetails(response.data.data.metalGrade);
+        const details = response.data.data.metalGrade;
+        setSelectedGradeDetails(details);
+        if (onGradeDetailsChange) onGradeDetailsChange(details);
         setDeviationElements([]);
       }
     } catch (error) {
       console.error("Failed to fetch metal grade details:", error);
       toast.error("Failed to load metal grade details");
       setSelectedGradeDetails(null);
+      if (onGradeDetailsChange) onGradeDetailsChange(null);
     }
   };
 
@@ -62,6 +67,7 @@ function ReadingConfigurationPanel({
     } else {
       setSelectedGradeDetails(null);
       setDeviationElements([]);
+      if (onGradeDetailsChange) onGradeDetailsChange(null);
     }
   };
 
@@ -143,22 +149,28 @@ function ReadingConfigurationPanel({
   const renderElementsSection = () => {
     if (selectedGradeDetails?.composition_range) {
       return (
-        <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+        <div className="flex flex-wrap gap-3">
           {getAvailableElements().map((element) => (
             <button
               key={element}
               onClick={() => toggleDeviationElement(element)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex flex-col items-start px-3 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex-shrink-0 ${
                 deviationElements.includes(element)
-                  ? "bg-blue-500 text-white"
+                  ? "bg-blue-600 text-white"
                   : "bg-gray-100 hover:bg-gray-200 text-gray-700"
               }`}
-              title={`${element}: ${selectedGradeDetails.composition_range[element][0]}% - ${selectedGradeDetails.composition_range[element][1]}%`}
+              style={{ minWidth: 110 }}
+              title={`${element}: ${formatRange(
+                selectedGradeDetails.composition_range[element],
+                2
+              )}`}
             >
-              {element}
-              <div className="text-xs opacity-75">
-                {selectedGradeDetails.composition_range[element][0]}%-
-                {selectedGradeDetails.composition_range[element][1]}%
+              <span className="font-semibold truncate w-full">{element}</span>
+              <div className="text-xs opacity-75 whitespace-normal break-words w-full leading-tight">
+                {formatRange(
+                  selectedGradeDetails.composition_range[element],
+                  2
+                )}
               </div>
             </button>
           ))}
@@ -251,42 +263,7 @@ function ReadingConfigurationPanel({
         </label>
 
         {renderElementsSection()}
-
-        {deviationElements.length > 0 && (
-          <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-            <div className="text-sm text-blue-700 font-medium">
-              Selected Elements:
-            </div>
-            <div className="text-sm text-blue-600">
-              {deviationElements.join(", ")}
-            </div>
-          </div>
-        )}
       </div>
-
-      {/* Selected Grade Details */}
-      {selectedGradeDetails && (
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">
-            {selectedGradeDetails.metal_grade} - Composition Range
-          </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {Object.entries(selectedGradeDetails.composition_range).map(
-              ([element, range]) => (
-                <div
-                  key={element}
-                  className="bg-white p-3 rounded-md text-center border"
-                >
-                  <div className="font-semibold text-gray-800">{element}</div>
-                  <div className="text-sm text-gray-600">
-                    {range[0]}% - {range[1]}%
-                  </div>
-                </div>
-              )
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Generate Reading Button */}
       <div className="mt-6">
@@ -331,6 +308,7 @@ ReadingConfigurationPanel.propTypes = {
   onGenerationStart: PropTypes.func,
   onGenerationError: PropTypes.func,
   isGenerating: PropTypes.bool,
+  onGradeDetailsChange: PropTypes.func,
 };
 
 export default ReadingConfigurationPanel;

@@ -4,6 +4,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from "react";
+import { formatPercent } from "../../utils/formatters";
 import axios from "../../utils/axios";
 
 const HistoricalDataTable = forwardRef((props, ref) => {
@@ -45,7 +46,7 @@ const HistoricalDataTable = forwardRef((props, ref) => {
     return Object.entries(composition)
       .sort(([, a], [, b]) => b - a)
       .slice(0, 3)
-      .map(([element, value]) => `${element}: ${value.toFixed(1)}%`)
+      .map(([element, value]) => `${element}: ${formatPercent(value, 1)}`)
       .join(", ");
   };
 

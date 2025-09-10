@@ -1,4 +1,5 @@
 import React from "react";
+import { formatPercent } from "../../utils/formatters";
 
 function ReadingResultsDisplay({ latestReading }) {
   // Create composition chart data for visualization
@@ -114,7 +115,7 @@ function ReadingResultsDisplay({ latestReading }) {
             {createCompositionBars(latestReading.composition)?.map(
               ({ element, value, percentage }) => (
                 <div key={element} className="flex items-center">
-                  <div className="w-12 text-sm font-bold text-gray-700 text-center">
+                  <div className="min-w-[56px] max-w-[120px] text-sm font-bold text-gray-700 text-center truncate">
                     {element}
                   </div>
                   <div className="flex-1 mx-3 bg-gray-200 rounded-full h-8 relative overflow-hidden">
@@ -123,12 +124,12 @@ function ReadingResultsDisplay({ latestReading }) {
                       style={{ width: `${percentage}%` }}
                     >
                       <span className="text-white text-sm font-semibold">
-                        {value.toFixed(3)}%
+                        {formatPercent(value, 3)}
                       </span>
                     </div>
                   </div>
-                  <div className="w-16 text-xs text-gray-500 text-right">
-                    {percentage.toFixed(1)}% max
+                  <div className="w-20 text-xs text-gray-500 text-right truncate">
+                    {formatPercent(percentage, 1)} max
                   </div>
                 </div>
               )
@@ -149,8 +150,8 @@ function ReadingResultsDisplay({ latestReading }) {
                     <div className="text-lg font-bold text-gray-800">
                       {element}
                     </div>
-                    <div className="text-sm text-gray-600">
-                      {value.toFixed(3)}%
+                    <div className="text-sm text-gray-600 truncate">
+                      {formatPercent(value, 3)}
                     </div>
                   </div>
                 ))}
