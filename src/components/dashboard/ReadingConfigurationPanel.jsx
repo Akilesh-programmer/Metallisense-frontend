@@ -151,46 +151,50 @@ function ReadingConfigurationPanel({
   const renderElementsSection = () => {
     if (selectedGradeDetails?.composition_range) {
       return (
-        <div className="flex flex-wrap gap-3">
-          {getAvailableElements().map((element) => (
-            <button
-              key={element}
-              onClick={() => toggleDeviationElement(element)}
-              className={`flex flex-col items-start px-3 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex-shrink-0 ${
-                deviationElements.includes(element)
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-              }`}
-              style={{ minWidth: 110 }}
-              title={`${element}: ${formatRange(
-                selectedGradeDetails.composition_range[element],
-                2
-              )}`}
-            >
-              <span className="font-semibold truncate w-full">{element}</span>
-              <div className="text-xs opacity-75 whitespace-normal break-words w-full leading-tight">
-                {formatRange(
+        <div className="bg-gray-50 rounded-xl p-4 max-h-48 overflow-y-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {getAvailableElements().map((element) => (
+              <button
+                key={element}
+                onClick={() => toggleDeviationElement(element)}
+                className={`p-3 rounded-xl text-sm font-semibold transition-all duration-200 transform hover:scale-105 border-2 ${
+                  deviationElements.includes(element)
+                    ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white border-blue-300 shadow-lg"
+                    : "bg-white text-gray-700 border-gray-200 hover:border-blue-300 hover:bg-blue-50"
+                }`}
+                title={`${element}: ${formatRange(
                   selectedGradeDetails.composition_range[element],
                   2
-                )}
-              </div>
-            </button>
-          ))}
+                )}`}
+              >
+                <div className="font-bold text-lg">{element}</div>
+                <div className="text-xs opacity-75 mt-1">
+                  {formatRange(
+                    selectedGradeDetails.composition_range[element],
+                    2
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
       );
     } else if (selectedGrade) {
       return (
-        <div className="flex items-center justify-center h-16 bg-gray-50 rounded-lg">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mr-2"></div>
-          <span className="text-gray-600">
+        <div className="flex items-center justify-center h-20 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+          <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-500 border-t-transparent mr-3"></div>
+          <span className="text-blue-700 font-medium">
             Loading elements for {selectedGrade}...
           </span>
         </div>
       );
     } else {
       return (
-        <div className="text-center py-4 text-gray-500 bg-gray-50 rounded-lg">
-          Please select a metal grade first to see available elements
+        <div className="text-center py-6 text-gray-500 bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border border-gray-200">
+          <div className="text-4xl mb-2">🔍</div>
+          <div className="font-medium">
+            Select a metal grade to see available elements
+          </div>
         </div>
       );
     }
@@ -200,28 +204,29 @@ function ReadingConfigurationPanel({
   const isConnected = isClientConnected;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-4 lg:p-6 h-full flex flex-col w-full">
-      <h2 className="text-lg lg:text-xl font-semibold text-gray-800 mb-4 flex items-center">
-        <div className="w-2 h-2 rounded-full bg-purple-500 mr-2"></div>
+    <div className="modern-card p-6">
+      <h2 className="text-xl font-bold gradient-text mb-6 flex items-center">
+        <div className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-400 to-indigo-500 mr-3 animate-pulse"></div>
         ⚙️ Configuration
       </h2>
 
-      <div className="space-y-4 lg:space-y-5 flex-1 w-full">
+      <div className="space-y-6 flex-1">
         {/* Metal Grade Selection */}
-        <div>
+        <div className="space-y-2">
           <label
             htmlFor="metal-grade-select"
-            className="block text-sm lg:text-base font-medium text-gray-700 mb-2"
+            className="flex items-center text-sm font-semibold text-gray-800"
           >
+            <span className="mr-2">🏭</span>
             Metal Grade
           </label>
           <select
             id="metal-grade-select"
             value={selectedGrade}
             onChange={(e) => handleGradeSelection(e.target.value)}
-            className="w-full p-3 lg:p-4 text-sm lg:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            className="w-full p-4 text-base border-2 border-gray-200 rounded-xl focus:ring-3 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200 bg-white hover:border-gray-300"
           >
-            <option value="">Select a metal grade</option>
+            <option value="">Choose a metal grade...</option>
             {metalGrades.map((grade) => (
               <option key={grade} value={grade}>
                 {grade}
@@ -230,93 +235,118 @@ function ReadingConfigurationPanel({
           </select>
         </div>
 
-        {/* Deviation Percentage */}
-        <div>
-          <label
-            htmlFor="deviation-percentage"
-            className="block text-sm lg:text-base font-medium text-gray-700 mb-2"
-          >
-            Deviation Percentage (%)
-          </label>
-          <input
-            id="deviation-percentage"
-            type="number"
-            min="0"
-            max="50"
-            value={deviationPercentage}
-            onChange={(e) =>
-              setDeviationPercentage(parseInt(e.target.value) || 0)
-            }
-            className="w-full p-3 lg:p-4 text-sm lg:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-            placeholder="Enter deviation percentage"
-          />
-        </div>
+        {/* Configuration Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Deviation Percentage */}
+          <div className="space-y-2">
+            <label
+              htmlFor="deviation-percentage"
+              className="flex items-center text-sm font-semibold text-gray-800"
+            >
+              <span className="mr-2">📊</span>
+              Deviation %
+            </label>
+            <div className="relative">
+              <input
+                id="deviation-percentage"
+                type="number"
+                min="0"
+                max="50"
+                value={deviationPercentage}
+                onChange={(e) =>
+                  setDeviationPercentage(parseInt(e.target.value) || 0)
+                }
+                className="w-full p-4 text-base border-2 border-gray-200 rounded-xl focus:ring-3 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200 bg-white hover:border-gray-300"
+                placeholder="0-50"
+              />
+              <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                <span className="text-gray-400 text-sm">%</span>
+              </div>
+            </div>
+          </div>
 
-        {/* Total Weight */}
-        <div>
-          <label
-            htmlFor="total-weight"
-            className="block text-sm lg:text-base font-medium text-gray-700 mb-2"
-          >
-            Total Weight (kg)
-          </label>
-          <input
-            id="total-weight"
-            type="number"
-            min="0"
-            step="0.01"
-            value={totalWeight}
-            onChange={(e) => setTotalWeight(Number(e.target.value) || 0)}
-            className="w-full p-3 lg:p-4 text-sm lg:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-            placeholder="Enter total weight in kilograms"
-          />
+          {/* Total Weight */}
+          <div className="space-y-2">
+            <label
+              htmlFor="total-weight"
+              className="flex items-center text-sm font-semibold text-gray-800"
+            >
+              Total Weight
+            </label>
+            <div className="relative">
+              <input
+                id="total-weight"
+                type="number"
+                min="0"
+                step="0.01"
+                value={totalWeight}
+                onChange={(e) => setTotalWeight(Number(e.target.value) || 0)}
+                className="w-full p-4 text-base border-2 border-gray-200 rounded-xl focus:ring-3 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200 bg-white hover:border-gray-300"
+                placeholder="0.00"
+              />
+              <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                <span className="text-gray-400 text-sm">kg</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Deviation Elements Selection */}
-      <div className="mt-6">
-        <label className="block text-sm font-medium text-gray-700 mb-3">
-          Deviation Elements (Optional)
+      <div className="mt-8 space-y-3">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-semibold text-gray-800">
+            🧪 Deviation Elements
+          </label>
           {selectedGrade && (
-            <span className="text-xs text-gray-500 ml-2">
-              - Available elements in {selectedGrade}
+            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+              {selectedGrade}
             </span>
           )}
-        </label>
+        </div>
+        <div className="text-xs text-gray-600 mb-3">
+          Select elements to apply deviation during analysis (optional)
+        </div>
 
         {renderElementsSection()}
       </div>
 
       {/* Generate Reading Button */}
-      <div className="mt-6">
+      <div className="mt-8 space-y-3">
         <button
           onClick={generateReading}
           disabled={!selectedGrade || isGenerating || !isConnected}
-          className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors ${
+          className={`w-full py-4 px-6 rounded-xl font-bold text-lg transition-all duration-200 transform ${
             !selectedGrade || !isConnected
               ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-green-500 hover:bg-green-600 text-white"
+              : "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg hover:scale-105"
           } ${isGenerating ? "opacity-50 cursor-not-allowed" : ""}`}
         >
           {isGenerating ? (
             <div className="flex items-center justify-center">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+              <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent mr-3"></div>
               Generating Reading...
             </div>
           ) : (
-            "🔬 Generate Spectrometer Reading"
+            <span className="flex items-center justify-center">
+              <span className="mr-3 text-xl">🔬</span>
+              Generate Spectrometer Reading
+            </span>
           )}
         </button>
 
         {/* Status Messages */}
         {!isConnected && selectedGrade && (
-          <div className="mt-2 text-sm text-amber-600 bg-amber-50 p-2 rounded text-center">
-            ⚠️ Connect to OPC Server to generate readings
+          <div className="text-sm text-amber-700 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 p-3 rounded-xl flex items-center">
+            <span className="mr-2">⚠️</span>
+            <span className="font-medium">
+              Connect to OPC Server to generate readings
+            </span>
           </div>
         )}
         {!selectedGrade && (
-          <div className="mt-2 text-sm text-gray-500 text-center">
-            Select a metal grade to proceed
+          <div className="text-sm text-gray-600 bg-gradient-to-r from-gray-50 to-slate-50 border border-gray-200 p-3 rounded-xl text-center">
+            👆 Select a metal grade to proceed
           </div>
         )}
       </div>
