@@ -3,8 +3,9 @@ import OPCConnectionPanel from "../components/dashboard/OPCConnectionPanel";
 import ReadingConfigurationPanel from "../components/dashboard/ReadingConfigurationPanel";
 import ReadingResultsDisplay from "../components/dashboard/ReadingResultsDisplay";
 import { useOPCStatus } from "../hooks/useOPCStatus";
-import axios from "../utils/axios";
+
 import toast from "react-hot-toast";
+import axios from "../utils/axios";
 
 function Dashboard() {
   // Use centralized OPC status context
@@ -52,6 +53,30 @@ function Dashboard() {
     setIsGenerating(false);
   };
 
+  // Logout handler
+  const handleLogout = async () => {
+    try {
+      const res = await axios.post("/users/logout");
+      if (res.data?.status === "success") {
+        // Clear any client-side auth state
+        try {
+          localStorage.clear();
+          sessionStorage.clear();
+        } catch {
+          /* ignore */
+        }
+        toast.success("Logged out successfully");
+        // Redirect to login page
+        window.location.href = "/login";
+        return true;
+      }
+    } catch (err) {
+      console.error("Logout failed", err);
+      toast.error("Logout failed");
+    }
+    return false;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
@@ -78,6 +103,26 @@ function Dashboard() {
                     ? "System Online"
                     : "System Offline"}
                 </span>
+                <button
+                  onClick={handleLogout}
+                  className="ml-4 inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-700 py-2 px-3 rounded-lg shadow-sm hover:shadow-md hover:bg-gray-50 transition"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 text-gray-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"
+                    />
+                  </svg>
+                  <span className="text-sm font-medium">Logout</span>
+                </button>
               </div>
             </div>
           </div>
