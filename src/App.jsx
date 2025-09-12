@@ -19,7 +19,7 @@ function App() {
             <Route path="/register" element={<RegisterForm />} />
 
             {/* Protected Routes - MetalliSense Dashboard */}
-            <Route
+            <Route  
               path="/main"
               element={
                 <ProtectedRoute>
