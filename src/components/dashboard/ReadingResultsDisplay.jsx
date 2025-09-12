@@ -2,19 +2,8 @@ import React from "react";
 import { formatPercent } from "../../utils/formatters";
 
 function ReadingResultsDisplay({ latestReading }) {
-  // Create composition chart data for visualization
-  const createCompositionBars = (composition) => {
-    if (!composition) return null;
-
-    const elements = Object.entries(composition);
-    const maxValue = Math.max(...Object.values(composition));
-
-    return elements.map(([element, value]) => ({
-      element,
-      value,
-      percentage: (value / maxValue) * 100,
-    }));
-  };
+  // We intentionally show raw values and highlight any elements listed
+  // in latestReading.deviation_elements (no assumptions about specs).
 
   if (!latestReading) {
     return null;
@@ -27,7 +16,7 @@ function ReadingResultsDisplay({ latestReading }) {
         📊 Latest Results
       </h2>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1 w-full">
         {/* Reading Info */}
         <div className="lg:col-span-1">
           <div className="space-y-5">
@@ -112,57 +101,52 @@ function ReadingResultsDisplay({ latestReading }) {
           </h3>
 
           <div className="space-y-3">
-            {createCompositionBars(latestReading.composition)?.map(
-              ({ element, value, percentage }) => (
-                <div key={element} className="flex items-center">
-                  <div className="min-w-[56px] max-w-[120px] text-sm font-bold text-gray-700 text-center truncate">
-                    {element}
-                  </div>
-                  <div className="flex-1 mx-3 bg-gray-200 rounded-full h-8 relative overflow-hidden">
-                    <div
-                      className="bg-gradient-to-r from-blue-500 to-blue-600 h-8 rounded-full flex items-center justify-end pr-3 transition-all duration-1000 ease-out"
-                      style={{ width: `${percentage}%` }}
-                    >
-                      <span className="text-white text-sm font-semibold">
-                        {formatPercent(value, 3)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="w-20 text-xs text-gray-500 text-right truncate">
-                    {formatPercent(percentage, 1)} max
-                  </div>
-                </div>
-              )
-            )}
-          </div>
+            {Object.entries(latestReading.composition || {})
+              .sort(([, a], [, b]) => b - a)
+              .map(([element, value]) => {
+                const deviationSet = new Set(
+                  latestReading.deviation_elements || []
+                );
+                const outOfSpec = deviationSet.has(element);
 
-          {/* Composition Summary */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <h4 className="text-sm font-semibold text-gray-700 mb-3">
-              📈 Composition Summary
-            </h4>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {Object.entries(latestReading.composition || {})
-                .sort(([, a], [, b]) => b - a)
-                .slice(0, 6)
-                .map(([element, value]) => (
-                  <div key={element} className="text-center">
-                    <div className="text-lg font-bold text-gray-800">
+                return (
+                  <div
+                    key={element}
+                    className="flex items-center justify-between py-2"
+                  >
+                    <div className="min-w-[80px] text-sm font-bold text-gray-700 truncate">
                       {element}
                     </div>
-                    <div className="text-sm text-gray-600 truncate">
-                      {formatPercent(value, 3)}
+
+                    <div className="flex-1 mx-3">
+                      <div
+                        className={`text-right ${
+                          outOfSpec
+                            ? "text-red-600 font-semibold"
+                            : "text-gray-700"
+                        }`}
+                      >
+                        {formatPercent(value, 3)}
+                      </div>
                     </div>
+
+                    {outOfSpec && (
+                      <div className="ml-4 text-xs text-red-600 font-medium">
+                        Out of spec
+                      </div>
+                    )}
                   </div>
-                ))}
-            </div>
+                );
+              })}
           </div>
+
+          {/* Composition Summary removed to reduce redundancy and empty space */}
         </div>
       </div>
 
       {/* Additional Reading Information */}
-      <div className="mt-6 pt-6 border-t border-gray-200">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="mt-4 pt-4 border-t border-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="text-center">
             <div className="text-2xl font-bold text-blue-600">
               {Object.keys(latestReading.composition || {}).length}
