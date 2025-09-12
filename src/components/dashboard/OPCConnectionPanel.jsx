@@ -55,54 +55,50 @@ function OPCConnectionPanel() {
     }
   };
 
-  // Get status indicator classes
-  const getStatusClass = (isActive) => {
-    return isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
-  };
-
-  const getStatusDot = (isActive) => {
-    return isActive ? "bg-green-500" : "bg-red-500";
-  };
-
   // Use context values directly (remove redundant local state)
   const isConnected = isClientConnected;
   const serverRunning = isServerRunning;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-4 lg:p-6 h-full flex flex-col w-full">
-      <h2 className="text-lg lg:text-xl font-semibold text-gray-800 mb-4 flex items-center">
-        <div className="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
+    <div className="modern-card p-6">
+      <h2 className="text-xl font-bold gradient-text mb-6 flex items-center">
+        <div
+          className={`w-3 h-3 rounded-full mr-3 ${
+            isServerRunning
+              ? "bg-green-400 status-online"
+              : "bg-red-400 status-offline"
+          }`}
+        ></div>
         🔌 OPC Connection
       </h2>
 
       {opcStatus ? (
         <div className="space-y-4">
           {/* Server Status */}
-          <div className="p-4 lg:p-5 bg-gray-50 rounded-lg border-l-4 border-blue-500">
-            <h3 className="text-sm lg:text-base font-semibold text-gray-700 mb-3">
-              OPC UA Server
-            </h3>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <div
-                  className={`w-3 h-3 rounded-full mr-3 ${getStatusDot(
-                    serverRunning
-                  )}`}
-                ></div>
-                <span className="text-sm lg:text-base font-medium text-gray-700">
-                  Server Status
-                </span>
-              </div>
+          <div
+            className={`p-5 rounded-xl border-2 transition-all duration-200 ${
+              serverRunning
+                ? "border-green-200 bg-gradient-to-br from-green-50 to-emerald-50"
+                : "border-red-200 bg-gradient-to-br from-red-50 to-pink-50"
+            }`}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-bold text-gray-800 flex items-center">
+                <span className="mr-2">🖥️</span>
+                OPC UA Server
+              </h3>
               <span
-                className={`px-3 py-1.5 rounded-full text-sm font-medium ${getStatusClass(
+                className={`px-3 py-1 rounded-full text-sm font-semibold ${
                   serverRunning
-                )}`}
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                }`}
               >
-                {serverRunning ? "🟢 Online" : "🔴 Offline"}
+                {serverRunning ? "🟢 ONLINE" : "🔴 OFFLINE"}
               </span>
             </div>
             {opcStatus.server?.endpoint && (
-              <div className="mt-2 text-xs text-gray-600 font-mono break-all">
+              <div className="text-xs text-gray-600 font-mono bg-white/50 p-2 rounded border break-all">
                 📍 {opcStatus.server.endpoint}
               </div>
             )}
@@ -110,81 +106,85 @@ function OPCConnectionPanel() {
 
           {/* Client Connection Status */}
           <div
-            className={`p-4 rounded-lg border-l-4 ${
+            className={`p-5 rounded-xl border-2 transition-all duration-200 ${
               isConnected
-                ? "bg-green-50 border-green-500"
-                : "bg-red-50 border-red-500"
+                ? "border-green-200 bg-gradient-to-br from-green-50 to-emerald-50"
+                : "border-gray-200 bg-gradient-to-br from-gray-50 to-slate-50"
             }`}
           >
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">
-              OPC UA Client
-            </h3>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center">
-                <div
-                  className={`w-3 h-3 rounded-full mr-3 ${getStatusDot(
-                    isConnected
-                  )}`}
-                ></div>
-                <span className="font-medium text-gray-700">
-                  Connection Status
-                </span>
-              </div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-gray-800 flex items-center">
+                <span className="mr-2">🔗</span>
+                Client Connection
+              </h3>
               <span
-                className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusClass(
+                className={`px-3 py-1 rounded-full text-sm font-semibold ${
                   isConnected
-                )}`}
+                    ? "bg-green-100 text-green-700"
+                    : "bg-gray-100 text-gray-700"
+                }`}
               >
-                {isConnected ? "🟢 Connected" : "🔴 Disconnected"}
+                {isConnected ? "🟢 CONNECTED" : "🔴 DISCONNECTED"}
               </span>
             </div>
 
             {/* Connection Controls */}
-            <div className="mt-3">
+            <div className="space-y-3">
               {!isConnected ? (
                 <button
                   onClick={handleConnect}
                   disabled={isConnecting || !serverRunning}
-                  className={`w-full py-2.5 px-4 rounded-lg font-semibold transition-colors ${
+                  className={`w-full py-3 px-6 rounded-xl font-bold text-white transition-all duration-200 transform ${
                     !serverRunning
-                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      : "bg-green-500 hover:bg-green-600 text-white"
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 hover:scale-105 shadow-lg"
                   } ${isConnecting ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                   {isConnecting ? (
                     <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      🔄 Connecting...
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+                      Connecting...
                     </div>
                   ) : (
-                    "🔗 Connect to OPC Server"
+                    <span className="flex items-center justify-center">
+                      <span className="mr-2">🔗</span>
+                      Connect to OPC Server
+                    </span>
                   )}
                 </button>
               ) : (
                 <button
                   onClick={handleDisconnect}
                   disabled={isDisconnecting}
-                  className={`w-full py-2.5 px-4 rounded-lg font-semibold transition-colors bg-red-500 hover:bg-red-600 text-white ${
+                  className={`w-full py-3 px-6 rounded-xl font-bold text-white transition-all duration-200 transform bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 hover:scale-105 shadow-lg ${
                     isDisconnecting ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                 >
                   {isDisconnecting ? (
                     <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
                       Disconnecting...
                     </div>
                   ) : (
-                    "⛔ Disconnect from OPC Server"
+                    <span className="flex items-center justify-center">
+                      <span className="mr-2">⛔</span>
+                      Disconnect Server
+                    </span>
                   )}
                 </button>
               )}
-            </div>
 
-            {!serverRunning && (
-              <div className="mt-2 text-xs text-amber-600 bg-amber-50 p-2 rounded">
-                ⚠️ OPC Server must be running to establish client connection
-              </div>
-            )}
+              {!serverRunning && (
+                <div className="text-sm text-amber-700 bg-amber-100 border border-amber-200 p-3 rounded-lg">
+                  <div className="flex items-center">
+                    <span className="mr-2">⚠️</span>
+                    <span className="font-medium">
+                      OPC Server must be running to establish connection
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Additional Status Info */}

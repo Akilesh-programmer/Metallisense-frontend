@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import OPCConnectionPanel from "../components/dashboard/OPCConnectionPanel";
 import ReadingConfigurationPanel from "../components/dashboard/ReadingConfigurationPanel";
 import ReadingResultsDisplay from "../components/dashboard/ReadingResultsDisplay";
-import HistoricalDataTable from "../components/dashboard/HistoricalDataTable";
 import { useOPCStatus } from "../hooks/useOPCStatus";
 import axios from "../utils/axios";
 import toast from "react-hot-toast";
@@ -14,9 +13,6 @@ function Dashboard() {
   // Core state for dashboard orchestration
   const [latestReading, setLatestReading] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
-
-  // Component refs for triggering updates
-  const historicalTableRef = useRef(null);
 
   // Initialize dashboard data (removed OPC polling as it's centralized now)
   useEffect(() => {
@@ -43,11 +39,6 @@ function Dashboard() {
     setLatestReading(newReading);
     setIsGenerating(false);
 
-    // Refresh historical data table
-    if (historicalTableRef.current?.refreshData) {
-      historicalTableRef.current.refreshData();
-    }
-
     toast.success("📊 New spectrometer reading generated successfully!");
   };
 
@@ -62,34 +53,43 @@ function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <div className="container mx-auto px-4 py-6 max-w-full 2xl:max-w-7xl">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-6">
-          <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-blue-500">
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-2 flex items-center flex-wrap">
-              ⚡ MetalliSense Dashboard
-              <span className="ml-4 text-lg lg:text-xl font-normal text-gray-500">
-                Real-time Spectrometer Monitoring
-              </span>
-            </h1>
-            <p className="text-base lg:text-lg text-gray-600">
-              Advanced metal composition analysis with OPC UA integration
-            </p>
+        <div className="mb-8">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 lg:p-8">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div>
+                <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+                  ⚡ MetalliSense
+                </h1>
+                <p className="text-lg text-gray-600 font-medium">
+                  Real-time Spectrometer Monitoring & Analysis
+                </p>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div
+                  className={`w-3 h-3 rounded-full ${
+                    opcStatus?.server?.isRunning ? "bg-green-400" : "bg-red-400"
+                  }`}
+                ></div>
+                <span className="text-sm font-medium text-gray-700">
+                  {opcStatus?.server?.isRunning
+                    ? "System Online"
+                    : "System Offline"}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Main Components Layout - Full Width with Responsive Grid */}
-        <div className="space-y-6 mb-6">
-          {/* OPC Connection and Configuration - Side by Side on Large Screens, Full Width Each */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
-            {/* OPC Connection Panel */}
-            <div className="w-full">
+        {/* Top row: two half-width cards side-by-side on large screens */}
+        <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
+          <div className="w-full flex gap-6">
+            <div className="w-1/2 min-w-0">
               <OPCConnectionPanel />
             </div>
-
-            {/* Reading Configuration Panel */}
-            <div className="w-full">
+            <div className="w-1/2 min-w-0">
               <ReadingConfigurationPanel
                 onReadingGenerated={handleReadingGenerated}
                 onGenerationStart={handleGenerationStart}
@@ -99,24 +99,18 @@ function Dashboard() {
             </div>
           </div>
 
-          {/* Reading Results Display - Full Width */}
-          <div className="w-full">
-            <ReadingResultsDisplay
-              latestReading={latestReading}
-              isGenerating={isGenerating}
-            />
-          </div>
+          {/* Results row below - full width */}
         </div>
 
-        {/* Historical Data Table - Full Width */}
-        <div className="mb-6 w-full">
-          <div className="h-fit w-full">
-            <HistoricalDataTable ref={historicalTableRef} />
-          </div>
+        <div className="w-full pt-6">
+          <ReadingResultsDisplay
+            latestReading={latestReading}
+            isGenerating={isGenerating}
+          />
         </div>
 
         {/* Footer Status Bar */}
-        <div className="bg-white rounded-xl shadow-sm p-4 border-t-2 border-gray-200">
+        <div className="mt-8 bg-white rounded-xl shadow-sm p-4 border-t-2 border-gray-200">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-sm text-gray-600">
             <div className="flex flex-wrap items-center gap-4">
               <span className="flex items-center">
