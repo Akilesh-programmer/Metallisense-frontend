@@ -20,6 +20,7 @@ function ReadingConfigurationPanel({
   const [selectedGradeDetails, setSelectedGradeDetails] = useState(null);
   const [deviationElements, setDeviationElements] = useState([]);
   const [deviationPercentage, setDeviationPercentage] = useState(10);
+  const [totalWeight, setTotalWeight] = useState(1);
 
   // Load initial data
   useEffect(() => {
@@ -113,6 +114,7 @@ function ReadingConfigurationPanel({
       const requestBody = {
         metalGrade: selectedGrade,
         deviationPercentage: deviationPercentage,
+        totalWeight: totalWeight,
       };
 
       if (deviationElements.length > 0) {
@@ -247,6 +249,26 @@ function ReadingConfigurationPanel({
             }
             className="w-full p-3 lg:p-4 text-sm lg:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             placeholder="Enter deviation percentage"
+          />
+        </div>
+
+        {/* Total Weight */}
+        <div>
+          <label
+            htmlFor="total-weight"
+            className="block text-sm lg:text-base font-medium text-gray-700 mb-2"
+          >
+            Total Weight (kg)
+          </label>
+          <input
+            id="total-weight"
+            type="number"
+            min="0"
+            step="0.01"
+            value={totalWeight}
+            onChange={(e) => setTotalWeight(Number(e.target.value) || 0)}
+            className="w-full p-3 lg:p-4 text-sm lg:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            placeholder="Enter total weight in kilograms"
           />
         </div>
       </div>

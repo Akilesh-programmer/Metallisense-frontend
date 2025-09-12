@@ -132,7 +132,27 @@ const HistoricalDataTable = forwardRef((props, ref) => {
                     </td>
                     <td className="py-3 px-4 text-gray-600 text-xs max-w-xs">
                       <div className="truncate" title={topElements}>
-                        {topElements}
+                        {Object.entries(reading.composition || {})
+                          .sort(([, a], [, b]) => b - a)
+                          .slice(0, 3)
+                          .map(([element, value], i) => {
+                            const isOut = (
+                              reading.deviation_elements || []
+                            ).includes(element);
+                            return (
+                              <span
+                                key={element}
+                                className={`inline-block mr-2 ${
+                                  isOut
+                                    ? "text-red-600 font-semibold"
+                                    : "text-gray-700"
+                                }`}
+                              >
+                                {element}: {formatPercent(value, 1)}
+                                {i < 2 ? "," : ""}
+                              </span>
+                            );
+                          })}
                       </div>
                     </td>
                     <td className="py-3 px-4">
