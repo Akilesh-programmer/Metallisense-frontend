@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import OPCConnectionPanel from "../components/dashboard/OPCConnectionPanel";
 import ReadingConfigurationPanel from "../components/dashboard/ReadingConfigurationPanel";
 import ReadingResultsDisplay from "../components/dashboard/ReadingResultsDisplay";
+import AIAnalysisSection from "../components/dashboard/AIAnalysisSection";
 import { useOPCStatus } from "../hooks/useOPCStatus";
 
 import toast from "react-hot-toast";
@@ -151,6 +152,14 @@ function Dashboard() {
           <ReadingResultsDisplay
             latestReading={latestReading}
             isGenerating={isGenerating}
+          />
+        </div>
+
+        {/* AI Analysis Section */}
+        <div className="w-full pt-6">
+          <AIAnalysisSection
+            latestReading={latestReading}
+            isEnabled={!!latestReading && !isGenerating}
           />
         </div>
 
