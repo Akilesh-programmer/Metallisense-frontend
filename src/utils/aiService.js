@@ -3,7 +3,7 @@ import axios from "axios";
 // AI Prediction Service
 class AIService {
   constructor() {
-    this.baseURL = "http://10.241.184.29:7860";
+    this.baseURL = "https://metallisense-ai.onrender.com";
     this.timeout = 600000; // 60 seconds timeout for AI predictions
   }
 
