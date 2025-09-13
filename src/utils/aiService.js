@@ -19,7 +19,9 @@ class AIService {
     try {
       // Validate input data
       if (!data.metal_grade || !data.composition || !data.kg) {
-        throw new Error("Missing required fields: metal_grade, composition, or kg");
+        throw new Error(
+          "Missing required fields: metal_grade, composition, or kg"
+        );
       }
 
       if (!Array.isArray(data.composition) || data.composition.length === 0) {
@@ -65,7 +67,9 @@ class AIService {
         // Server responded with error status
         return {
           success: false,
-          error: error.response.data?.message || `Server error: ${error.response.status}`,
+          error:
+            error.response.data?.message ||
+            `Server error: ${error.response.status}`,
           type: "server_error",
           status: error.response.status,
         };
@@ -113,11 +117,23 @@ class AIService {
   transformCompositionToArray(compositionObj) {
     // Define standard element order for AI model
     const standardElements = [
-      "Fe", "C", "Si", "Mn", "P", "S", "Cr", "Ni", "Mo", "Cu", 
-      "V", "Ti", "Nb", "Mg"
+      "Fe",
+      "C",
+      "Si",
+      "Mn",
+      "P",
+      "S",
+      "Cr",
+      "Ni",
+      "Mo",
+      "Cu",
+      "V",
+      "Ti",
+      "Nb",
+      "Mg",
     ];
 
-    return standardElements.map(element => {
+    return standardElements.map((element) => {
       return compositionObj[element] || 0;
     });
   }

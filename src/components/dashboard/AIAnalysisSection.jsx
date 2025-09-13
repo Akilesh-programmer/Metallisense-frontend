@@ -22,8 +22,11 @@ function AIAnalysisSection({ latestReading, isEnabled = true }) {
 
     try {
       // Create prediction request from the current reading
-      const requestData = aiService.createPredictionRequest(latestReading, weight);
-      
+      const requestData = aiService.createPredictionRequest(
+        latestReading,
+        weight
+      );
+
       toast.loading("🤖 Requesting AI analysis...", { id: "ai-prediction" });
 
       const result = await aiService.getPrediction(requestData);
@@ -33,7 +36,9 @@ function AIAnalysisSection({ latestReading, isEnabled = true }) {
         toast.success("✨ AI analysis complete!", { id: "ai-prediction" });
       } else {
         setError(result.error);
-        toast.error(`AI prediction failed: ${result.error}`, { id: "ai-prediction" });
+        toast.error(`AI prediction failed: ${result.error}`, {
+          id: "ai-prediction",
+        });
       }
     } catch (err) {
       const errorMessage = err.message || "Unexpected error occurred";
@@ -44,7 +49,8 @@ function AIAnalysisSection({ latestReading, isEnabled = true }) {
     }
   };
 
-  const canPredict = latestReading && latestReading.composition && isEnabled && !isLoading;
+  const canPredict =
+    latestReading && latestReading.composition && isEnabled && !isLoading;
 
   return (
     <div className="space-y-6">
@@ -56,7 +62,11 @@ function AIAnalysisSection({ latestReading, isEnabled = true }) {
             🤖 AI Analysis
           </h2>
           <div className="flex items-center space-x-2">
-            <div className={`w-2 h-2 rounded-full ${canPredict ? "bg-green-400" : "bg-gray-400"}`}></div>
+            <div
+              className={`w-2 h-2 rounded-full ${
+                canPredict ? "bg-green-400" : "bg-gray-400"
+              }`}
+            ></div>
             <span className="text-sm text-gray-600">
               {canPredict ? "Ready" : "Waiting for data"}
             </span>
@@ -71,10 +81,13 @@ function AIAnalysisSection({ latestReading, isEnabled = true }) {
               <span className="mr-2">⚖️</span>
               Prediction Parameters
             </h3>
-            
+
             <div className="space-y-4">
               <div>
-                <label htmlFor="weight-input" className="block text-sm font-medium text-purple-700 mb-2">
+                <label
+                  htmlFor="weight-input"
+                  className="block text-sm font-medium text-purple-700 mb-2"
+                >
                   Metal Weight (kg)
                 </label>
                 <input
@@ -97,13 +110,17 @@ function AIAnalysisSection({ latestReading, isEnabled = true }) {
               {latestReading && (
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <div className="text-center p-3 bg-white/60 rounded-lg">
-                    <div className="text-sm text-purple-600 font-medium">Current Grade</div>
+                    <div className="text-sm text-purple-600 font-medium">
+                      Current Grade
+                    </div>
                     <div className="text-lg font-bold text-purple-800">
                       {latestReading.metal_grade || "Unknown"}
                     </div>
                   </div>
                   <div className="text-center p-3 bg-white/60 rounded-lg">
-                    <div className="text-sm text-purple-600 font-medium">Elements</div>
+                    <div className="text-sm text-purple-600 font-medium">
+                      Elements
+                    </div>
                     <div className="text-lg font-bold text-purple-800">
                       {Object.keys(latestReading.composition || {}).length}
                     </div>
@@ -120,9 +137,10 @@ function AIAnalysisSection({ latestReading, isEnabled = true }) {
               disabled={!canPredict}
               className={`
                 relative inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-xl shadow-lg transition-all duration-300 transform
-                ${canPredict 
-                  ? "bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white hover:scale-105 hover:shadow-xl" 
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                ${
+                  canPredict
+                    ? "bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white hover:scale-105 hover:shadow-xl"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }
               `}
             >
@@ -138,12 +156,14 @@ function AIAnalysisSection({ latestReading, isEnabled = true }) {
                 </>
               )}
             </button>
-            
+
             {!canPredict && !isLoading && (
               <p className="text-sm text-gray-500 mt-3">
                 {(() => {
-                  if (!latestReading) return "📊 Generate a spectrometer reading first";
-                  if (!isEnabled) return "⏸️ AI predictions temporarily disabled";
+                  if (!latestReading)
+                    return "📊 Generate a spectrometer reading first";
+                  if (!isEnabled)
+                    return "⏸️ AI predictions temporarily disabled";
                   return "📋 Ready to analyze composition data";
                 })()}
               </p>
@@ -162,7 +182,10 @@ function AIAnalysisSection({ latestReading, isEnabled = true }) {
                     How AI Analysis Works
                   </div>
                   <div className="text-blue-700 space-y-1">
-                    <p>• Analyzes current composition against target specifications</p>
+                    <p>
+                      • Analyzes current composition against target
+                      specifications
+                    </p>
                     <p>• Provides specific adjustment recommendations</p>
                     <p>• Suggests optimal metal grade for your composition</p>
                     <p>• Takes approximately 30-60 seconds to complete</p>
@@ -183,9 +206,7 @@ function AIAnalysisSection({ latestReading, isEnabled = true }) {
                   <div className="font-semibold text-red-800 mb-1">
                     AI Analysis Failed
                   </div>
-                  <div className="text-sm text-red-700">
-                    {error}
-                  </div>
+                  <div className="text-sm text-red-700">{error}</div>
                   <button
                     onClick={() => setError(null)}
                     className="mt-2 text-xs text-red-600 hover:text-red-800 underline"
@@ -209,7 +230,7 @@ function AIAnalysisSection({ latestReading, isEnabled = true }) {
                     AI Analysis Complete
                   </div>
                   <div className="text-sm text-green-700">
-                    Predicted grade: <strong>{prediction.metal_grade}</strong> • 
+                    Predicted grade: <strong>{prediction.metal_grade}</strong> •
                     View detailed results below
                   </div>
                 </div>
@@ -220,7 +241,7 @@ function AIAnalysisSection({ latestReading, isEnabled = true }) {
       </div>
 
       {/* AI Prediction Results */}
-      <AIPredictionResults 
+      <AIPredictionResults
         prediction={prediction}
         isLoading={isLoading}
         error={error}
