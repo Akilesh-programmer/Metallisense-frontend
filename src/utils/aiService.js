@@ -3,15 +3,15 @@ import axios from "axios";
 // AI Prediction Service
 class AIService {
   constructor() {
-    this.baseURL = "https://metallisense-ai.onrender.com";
-    this.timeout = 60000; // 60 seconds timeout for AI predictions
+    this.baseURL = "http://10.241.184.29:7860";
+    this.timeout = 600000; // 60 seconds timeout for AI predictions
   }
 
   /**
    * Get AI prediction for metal composition
    * @param {Object} data - Prediction request data
    * @param {string} data.metal_grade - The metal grade
-   * @param {Array<number>} data.composition - Array of composition values
+   * @param {Object} data.composition - Composition object with element names as keys
    * @param {number} data.kg - Weight in kg
    * @returns {Promise<Object>} AI prediction response
    */
@@ -24,37 +24,45 @@ class AIService {
         );
       }
 
-      if (!Array.isArray(data.composition) || data.composition.length === 0) {
-        throw new Error("Composition must be a non-empty array");
+      if (
+        typeof data.composition !== "object" ||
+        data.composition === null ||
+        Object.keys(data.composition).length === 0
+      ) {
+        throw new Error("Composition must be a non-empty object");
       }
 
       if (typeof data.kg !== "number" || data.kg <= 0) {
         throw new Error("kg must be a positive number");
       }
 
+      const config = {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: false, // override global default
+        timeout: this.timeout,
+      };
+
       const response = await axios.post(
-        `${this.baseURL}/predict/`,
+        `${this.baseURL}/predict`,
         {
           metal_grade: data.metal_grade,
           composition: data.composition,
           kg: data.kg,
         },
-        {
-          timeout: this.timeout,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+        config
       );
 
+      console.log(response);
+
+      // Standard success path
       return {
         success: true,
         data: response.data,
+        status: response.status,
       };
     } catch (error) {
       console.error("AI Prediction API Error:", error);
 
-      // Handle different types of errors
       if (error.code === "ECONNABORTED") {
         return {
           success: false,
@@ -63,20 +71,37 @@ class AIService {
         };
       }
 
+      // If server returned a response (status != 2xx)
       if (error.response) {
-        // Server responded with error status
         return {
           success: false,
           error:
             error.response.data?.message ||
             `Server error: ${error.response.status}`,
+          data: error.response.data,
           type: "server_error",
           status: error.response.status,
         };
       }
 
+      // Some CORS or network errors surface here even when the server
+      // actually returned a body (browsers can treat it as a network error).
       if (error.request) {
-        // Network error
+        // Try to recover response text if present (XHR exposes responseText)
+        try {
+          const respText = error.request.responseText;
+          if (respText) {
+            const parsed = JSON.parse(respText);
+            console.warn("Recovered AI response from XHR.responseText", parsed);
+            return { success: true, data: parsed };
+          }
+        } catch (parseErr) {
+          console.warn(
+            "Failed to parse responseText from AI request",
+            parseErr
+          );
+        }
+
         return {
           success: false,
           error: "Network error - Cannot reach AI service",
@@ -84,7 +109,6 @@ class AIService {
         };
       }
 
-      // Other errors (validation, etc.)
       return {
         success: false,
         error: error.message || "An unexpected error occurred",
@@ -110,35 +134,6 @@ class AIService {
   }
 
   /**
-   * Transform composition object to array format expected by AI
-   * @param {Object} compositionObj - Composition object with element names as keys
-   * @returns {Array<number>} Array of composition values
-   */
-  transformCompositionToArray(compositionObj) {
-    // Define standard element order for AI model
-    const standardElements = [
-      "Fe",
-      "C",
-      "Si",
-      "Mn",
-      "P",
-      "S",
-      "Cr",
-      "Ni",
-      "Mo",
-      "Cu",
-      "V",
-      "Ti",
-      "Nb",
-      "Mg",
-    ];
-
-    return standardElements.map((element) => {
-      return compositionObj[element] || 0;
-    });
-  }
-
-  /**
    * Create prediction request from spectrometer reading
    * @param {Object} reading - Spectrometer reading data
    * @param {number} kg - Weight for prediction
@@ -151,7 +146,7 @@ class AIService {
 
     return {
       metal_grade: reading.metal_grade || "UNKNOWN",
-      composition: this.transformCompositionToArray(reading.composition),
+      composition: reading.composition, // Send as object/map directly
       kg: kg,
     };
   }
