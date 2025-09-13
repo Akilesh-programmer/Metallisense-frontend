@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import AIPredictionResults from "./AIPredictionResults";
 import aiService from "../../utils/aiService";
+import axios from "../../utils/axios";
 import toast from "react-hot-toast";
 
 function AIAnalysisSection({ latestReading, isEnabled = true }) {
@@ -21,10 +22,35 @@ function AIAnalysisSection({ latestReading, isEnabled = true }) {
     setPrediction(null);
 
     try {
-      // Create prediction request from the current reading
+      let elementOrder = null;
+
+      // Try to fetch metal grade details to get the correct element order
+      if (latestReading.metal_grade) {
+        try {
+          const gradeResponse = await axios.post("/metal-grades/by-name", {
+            name: latestReading.metal_grade,
+          });
+          if (gradeResponse.data.status === "success") {
+            const gradeDetails = gradeResponse.data.data.metalGrade;
+            if (gradeDetails?.composition_range) {
+              elementOrder = Object.keys(gradeDetails.composition_range);
+              console.log("Fetched element order from backend:", elementOrder);
+            }
+          }
+        } catch (gradeError) {
+          console.warn(
+            "Could not fetch metal grade details for element order:",
+            gradeError
+          );
+          // Continue without element order - will use composition keys order
+        }
+      }
+
+      // Create prediction request from the current reading with element order
       const requestData = aiService.createPredictionRequest(
         latestReading,
-        weight
+        weight,
+        elementOrder
       );
 
       toast.loading("🤖 Requesting AI analysis...", { id: "ai-prediction" });

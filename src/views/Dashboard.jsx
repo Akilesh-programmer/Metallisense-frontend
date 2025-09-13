@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import OPCConnectionPanel from "../components/dashboard/OPCConnectionPanel";
 import ReadingConfigurationPanel from "../components/dashboard/ReadingConfigurationPanel";
 import ReadingResultsDisplay from "../components/dashboard/ReadingResultsDisplay";
-import AIAnalysisSection from "../components/dashboard/AIAnalysisSection";
 import { useOPCStatus } from "../hooks/useOPCStatus";
 
 import toast from "react-hot-toast";
@@ -131,11 +130,11 @@ function Dashboard() {
 
         {/* Top row: two half-width cards side-by-side on large screens */}
         <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
-          <div className="w-full flex gap-6">
-            <div className="w-1/2 min-w-0">
+          <div className="w-full flex flex-col lg:flex-row gap-6">
+            <div className="w-full lg:w-1/2 min-w-0">
               <OPCConnectionPanel />
             </div>
-            <div className="w-1/2 min-w-0">
+            <div className="w-full lg:w-1/2 min-w-0">
               <ReadingConfigurationPanel
                 onReadingGenerated={handleReadingGenerated}
                 onGenerationStart={handleGenerationStart}
@@ -152,14 +151,6 @@ function Dashboard() {
           <ReadingResultsDisplay
             latestReading={latestReading}
             isGenerating={isGenerating}
-          />
-        </div>
-
-        {/* AI Analysis Section */}
-        <div className="w-full pt-6">
-          <AIAnalysisSection
-            latestReading={latestReading}
-            isEnabled={!!latestReading && !isGenerating}
           />
         </div>
 
